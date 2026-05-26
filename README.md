@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/banner.png" alt="Yandex Music Stream Deck Plugin" width="100%">
+  <img src="docs/banner.jpg" alt="Yandex Music Stream Deck Plugin" width="100%">
 </p>
 
 <h1 align="center">Yandex Music — Stream Deck / OpenDeck</h1>
