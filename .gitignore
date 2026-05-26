@@ -1,5 +1,6 @@
 # Local scratch / upstream clones for comparison
 _scratch/
+_experiments/
 
 # Runtime logs
 log/
