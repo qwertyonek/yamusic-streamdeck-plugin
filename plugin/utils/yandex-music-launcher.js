@@ -2,6 +2,7 @@ const { execSync, spawn } = require('child_process');
 const { log } = require('./plugin');
 const path = require('path');
 const os = require('os');
+const fs = require('fs');
 
 class YandexMusicLauncher {
     constructor() {
@@ -11,6 +12,190 @@ class YandexMusicLauncher {
 
     setDebugPort(port) {
         this.debugPort = port;
+        if (this.isLinux()) {
+            this.ensureDebugDesktop().catch((error) => {
+                log.warn('Не удалось обновить debug-ярлык:', error.message);
+            });
+        }
+    }
+
+    isLinux() {
+        return this.platform === 'linux';
+    }
+
+    execLinux(command, options = {}) {
+        return execSync(command, {
+            encoding: 'utf-8',
+            timeout: 5000,
+            shell: '/bin/bash',
+            ...options
+        });
+    }
+
+    getLinuxProcessList() {
+        try {
+            return this.execLinux(
+                `ps -eo args= | grep -E '/yandexmusic|/yandex-music' | grep -v 'node ' | grep -v 'plugin/index.js' || true`
+            );
+        } catch (e) {
+            return '';
+        }
+    }
+
+    parseLinuxDesktopExec(execLine) {
+        if (!execLine) return null;
+
+        const cleaned = execLine
+            .replace(/^Exec=/, '')
+            .replace(/%[fFuUdDnNickvm]/g, '')
+            .trim();
+
+        const parts = cleaned.match(/(?:[^\s"']+|"[^"]*")+/g) || [];
+        const unquoted = parts.map(part => part.replace(/^"|"$/g, ''));
+
+        if (unquoted.length === 0) return null;
+
+        return {
+            binary: unquoted[0],
+            extraArgs: unquoted.slice(1).filter(arg => !arg.startsWith('--remote-debugging-port='))
+        };
+    }
+
+    findLinuxBinary() {
+        const candidates = [
+            '/opt/yandex-music/yandexmusic',
+            '/opt/yandex-music/yandex-music',
+            '/usr/bin/yandexmusic',
+            '/usr/bin/yandex-music',
+            path.join(process.env.HOME || '', '.local/bin/yandexmusic'),
+            path.join(process.env.HOME || '', '.local/bin/yandex-music')
+        ];
+
+        for (const candidate of candidates) {
+            if (fs.existsSync(candidate)) {
+                return { binary: candidate, extraArgs: ['--gtk-version=3'] };
+            }
+        }
+
+        for (const command of ['yandexmusic', 'yandex-music']) {
+            try {
+                const found = this.execLinux(`command -v ${command} 2>/dev/null`).trim();
+                if (found) {
+                    return { binary: found, extraArgs: ['--gtk-version=3'] };
+                }
+            } catch (e) {
+                // continue
+            }
+        }
+
+        return null;
+    }
+
+    getLinuxDebugDesktopPath() {
+        return path.join(process.env.HOME || '', '.local/share/applications/yandexmusic-debug.desktop');
+    }
+
+    buildLinuxDebugDesktopContent(spec) {
+        const args = [
+            ...(spec.extraArgs || []),
+            `--remote-debugging-port=${this.debugPort}`
+        ];
+        const exec = `${spec.binary} ${args.join(' ')}`;
+
+        return `[Desktop Entry]
+Name=Yandex Music (Debug)
+Comment=Яндекс Музыка с CDP-портом для Stream Deck / OpenDeck
+Exec=${exec}
+Icon=yandexmusic
+Terminal=false
+Type=Application
+Categories=Audio;Music;
+StartupWMClass=Yandex Music
+`;
+    }
+
+    async ensureDebugDesktop() {
+        if (!this.isLinux()) {
+            return false;
+        }
+
+        const spec = this.findLinuxBinary();
+        if (!spec) {
+            log.warn('Не удалось создать debug-ярлык: бинарь Яндекс Музыки не найден');
+            return false;
+        }
+
+        const desktopPath = this.getLinuxDebugDesktopPath();
+        fs.mkdirSync(path.dirname(desktopPath), { recursive: true });
+
+        const content = this.buildLinuxDebugDesktopContent(spec);
+        const existing = fs.existsSync(desktopPath) ? fs.readFileSync(desktopPath, 'utf-8') : '';
+
+        if (existing !== content) {
+            fs.writeFileSync(desktopPath, content, { mode: 0o644 });
+            log.info('Debug-ярлык создан или обновлён:', desktopPath);
+        } else {
+            log.info('Debug-ярлык уже актуален:', desktopPath);
+        }
+
+        return true;
+    }
+
+    findLinuxLaunchSpec() {
+        const debugDesktopPath = this.getLinuxDebugDesktopPath();
+
+        try {
+            if (fs.existsSync(debugDesktopPath)) {
+                const content = fs.readFileSync(debugDesktopPath, 'utf-8');
+                const execLine = content.split('\n').find(line => line.startsWith('Exec='));
+                const parsed = this.parseLinuxDesktopExec(execLine);
+
+                if (parsed?.binary && fs.existsSync(parsed.binary)) {
+                    log.info('Найден запуск Яндекс Музыки через debug desktop file:', debugDesktopPath);
+                    return parsed;
+                }
+            }
+        } catch (e) {
+            // continue
+        }
+
+        const desktopDirs = [
+            path.join(process.env.HOME || '', '.local/share/applications'),
+            '/usr/share/applications',
+            '/usr/local/share/applications'
+        ];
+
+        const desktopNames = [
+            'yandex-music-debug.desktop',
+            'yandexmusic.desktop',
+            'yandex-music.desktop'
+        ];
+
+        for (const dir of desktopDirs) {
+            for (const name of desktopNames) {
+                const desktopPath = path.join(dir, name);
+                try {
+                    if (!fs.existsSync(desktopPath)) continue;
+
+                    const content = fs.readFileSync(desktopPath, 'utf-8');
+                    const execLine = content.split('\n').find(line => line.startsWith('Exec='));
+                    const parsed = this.parseLinuxDesktopExec(execLine);
+
+                    if (parsed?.binary && fs.existsSync(parsed.binary)) {
+                        log.info('Найден запуск Яндекс Музыки через desktop file:', desktopPath);
+                        return parsed;
+                    }
+                } catch (e) {
+                    // continue
+                }
+            }
+        }
+
+        const binarySpec = this.findLinuxBinary();
+        if (binarySpec) {
+            log.info('Найден путь к Яндекс Музыке:', binarySpec.binary);
+        }
+        return binarySpec;
     }
 
     /**
@@ -18,6 +203,11 @@ class YandexMusicLauncher {
      */
     async findYandexMusicPath() {
         try {
+            if (this.isLinux()) {
+                const spec = this.findLinuxLaunchSpec();
+                return spec?.binary || null;
+            }
+
             if (this.platform === 'win32') {
                 // Windows пути
                 const possiblePaths = [
@@ -111,6 +301,11 @@ class YandexMusicLauncher {
      */
     async isYandexMusicRunning() {
         try {
+            if (this.isLinux()) {
+                const processes = this.getLinuxProcessList();
+                return processes.trim().length > 0;
+            }
+
             if (this.platform === 'win32') {
                 // Windows: проверяем через tasklist
                 try {
@@ -146,6 +341,23 @@ class YandexMusicLauncher {
      */
     async isRunningWithDebugPort() {
         try {
+            if (this.isLinux()) {
+                const processes = this.getLinuxProcessList();
+                if (!processes.trim()) return false;
+
+                const portFlag = `--remote-debugging-port=${this.debugPort}`;
+                const hasPort = processes.split('\n').some(line => line.includes(portFlag));
+
+                if (hasPort) {
+                    log.info('✅ Процесс запущен с правильным портом отладки');
+                } else {
+                    log.warn('⚠️ Процесс запущен, но без нужного параметра отладки');
+                    log.warn('Найденные процессы:', processes.trim());
+                }
+
+                return hasPort;
+            }
+
             if (this.platform === 'win32') {
                 // Windows: проверяем через PowerShell (более надежно)
                 try {
@@ -211,6 +423,18 @@ class YandexMusicLauncher {
      */
     async killYandexMusic() {
         try {
+            if (this.isLinux()) {
+                try {
+                    this.execLinux(`pkill -f '[y]andexmusic|[y]andex-music' || true`);
+                    log.info('Процесс Яндекс Музыки завершен');
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    return true;
+                } catch (e) {
+                    log.warn('Не удалось завершить процесс (возможно, он уже не запущен):', e.message);
+                    return false;
+                }
+            }
+
             if (this.platform === 'win32') {
                 // Windows: завершаем через taskkill
                 try {
@@ -254,6 +478,45 @@ class YandexMusicLauncher {
      */
     async launchYandexMusic(appPath) {
         try {
+            if (this.isLinux()) {
+                const spec = this.findLinuxLaunchSpec();
+                if (!spec?.binary) {
+                    log.error('Не удалось найти путь к Яндекс Музыке на Linux');
+                    return false;
+                }
+
+                const args = [
+                    ...(spec.extraArgs || []),
+                    `--remote-debugging-port=${this.debugPort}`
+                ];
+
+                log.info('Запуск Яндекс Музыки на Linux');
+                log.info('Бинарь:', spec.binary);
+                log.info('Параметры:', args.join(' '));
+
+                const child = spawn(spec.binary, args, {
+                    detached: true,
+                    stdio: 'ignore'
+                });
+                child.unref();
+
+                await new Promise(resolve => setTimeout(resolve, 3000));
+
+                const isRunning = await this.isRunningWithDebugPort();
+                if (isRunning) {
+                    log.info('✅ Яндекс Музыка запущена с правильными параметрами');
+                    return true;
+                }
+
+                const started = await this.isYandexMusicRunning();
+                if (started) {
+                    log.warn('⚠️ Яндекс Музыка запущена, но параметры могут быть неверными');
+                    return true;
+                }
+
+                return false;
+            }
+
             if (!appPath) {
                 appPath = await this.findYandexMusicPath();
                 if (!appPath) {

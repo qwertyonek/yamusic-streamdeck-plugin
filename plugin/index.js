@@ -6,7 +6,7 @@ const yandexMusicLauncher = require('./utils/yandex-music-launcher');
 
 const plugin = new Plugins();
 
-// Инициализируем порт в launcher (по умолчанию 9222)
+// Инициализируем порт в launcher (по умолчанию 9222); на Linux создаст debug-ярлык
 yandexMusicLauncher.setDebugPort(9222);
 
 yandexMusic.connect().then(() => {
