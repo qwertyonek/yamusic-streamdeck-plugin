@@ -199,7 +199,7 @@
   "Description": "Управление Яндекс Музыкой через OpenDeck / Stream Deck.",
   "Category": "Music",
   "CategoryIcon": "imgs/icon",
-  "Version": "2.1.0",
+  "Version": "2.1.1",
   "URL": "https://t.me/qwertyonek",
   "OS": [
     {
