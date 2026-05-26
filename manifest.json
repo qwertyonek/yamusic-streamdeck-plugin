@@ -1,0 +1,222 @@
+{
+  "Actions": [
+    {
+      "Icon": "imgs/ym-play",
+      "Name": "Плей/пауза",
+      "DisableAutomaticStates": false,
+      "States": [
+        {
+          "Image": "imgs/ym-play",
+          "Name": "Play"
+        },
+        {
+          "Image": "imgs/ym-pause",
+          "Name": "Pause"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": true,
+      "Tooltip": "Включить/выключить воспроизведение",
+      "UUID": "ru.yandex.music.ym-play-pause",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/ym-back",
+      "Name": "Предыдущий трек",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/ym-back",
+          "TitleAlignment": "center",
+          "FontSize": "8"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": true,
+      "Tooltip": "Предыдущий трек",
+      "UUID": "ru.yandex.music.ym-previous",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/ym-next",
+      "Name": "Следующий трек",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/ym-next",
+          "TitleAlignment": "center",
+          "FontSize": "8"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": true,
+      "Tooltip": "Следующий трек",
+      "UUID": "ru.yandex.music.ym-next",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/ym-no-like",
+      "Name": "Лайк",
+      "DisableAutomaticStates": false,
+      "States": [
+        {
+          "Image": "imgs/ym-no-like",
+          "Name": "Not Liked"
+        },
+        {
+          "Image": "imgs/ym-like",
+          "Name": "Liked"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": true,
+      "Tooltip": "Поставить лайк песне",
+      "UUID": "ru.yandex.music.ym-like",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/ym-dislike",
+      "Name": "Дизлайк",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/ym-dislike",
+          "TitleAlignment": "center",
+          "FontSize": "8"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": true,
+      "Tooltip": "Поставить дизлайк песне",
+      "UUID": "ru.yandex.music.ym-dislike",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/ym-music-on",
+      "Name": "Выключить звук",
+      "DisableAutomaticStates": false,
+      "States": [
+        {
+          "Image": "imgs/ym-music-on",
+          "Name": "Sound On"
+        },
+        {
+          "Image": "imgs/ym-music-off",
+          "Name": "Sound Off"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": true,
+      "Tooltip": "Выключить звук",
+      "UUID": "ru.yandex.music.ym-mute",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/App-logo",
+      "Name": "Обложка трека",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/App-logo",
+          "TitleAlignment": "center",
+          "FontSize": "8"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": true,
+      "SupportedInMultiActions": false,
+      "Tooltip": "Показывает обложку играющего трека",
+      "UUID": "ru.yandex.music.ym-cover",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/text-bg",
+      "Name": "Время трека: текущее/общее",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/text-bg",
+          "TitleAlignment": "center",
+          "FontSize": "12"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "Tooltip": "Показывает текущее время и общую длительность трека",
+      "UUID": "ru.yandex.music.ym-time-total",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    },
+    {
+      "Icon": "imgs/text-bg",
+      "Name": "Название трека",
+      "DisableAutomaticStates": true,
+      "States": [
+        {
+          "Image": "imgs/text-bg",
+          "TitleAlignment": "center",
+          "FontSize": "10"
+        }
+      ],
+      "Controllers": [
+        "Keypad"
+      ],
+      "UserTitleEnabled": false,
+      "SupportedInMultiActions": false,
+      "Tooltip": "Показывает автора и название трека бегущей строкой",
+      "UUID": "ru.yandex.music.ym-track-info",
+      "PropertyInspectorPath": "propertyInspector/inspector/index.html"
+    }
+  ],
+  "SDKVersion": 1,
+  "Author": "qwertyonek",
+  "Name": "Yandex Music",
+  "Icon": "imgs/icon",
+  "CodePathWin": "plugin/index.js",
+  "CodePathMac": "plugin/index.js",
+  "Description": "Управление Яндекс Музыкой через OpenDeck / Stream Deck.",
+  "Category": "Music",
+  "CategoryIcon": "imgs/icon",
+  "Version": "2.1.0",
+  "URL": "https://t.me/qwertyonek",
+  "OS": [
+    {
+      "Platform": "windows"
+    },
+    {
+      "Platform": "mac"
+    },
+    {
+      "Platform": "linux"
+    }
+  ],
+  "Software": {
+    "MinimumVersion": "3.0"
+  },
+  "Nodejs": {
+    "Version": "20"
+  },
+  "CodePathLin": "plugin/index.js"
+}

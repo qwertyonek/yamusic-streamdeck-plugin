@@ -1,0 +1,10 @@
+{
+  "Name": "Yandex Music",
+  "Description": "Управление Яндекс Музыкой через OpenDeck / Stream Deck.",
+  "Category": "Music",
+  "ru.yandex.music": {
+    "Name": "Yandex Music",
+    "Tooltip": "Управление Яндекс Музыкой"
+  },
+  "Localization": {}
+}

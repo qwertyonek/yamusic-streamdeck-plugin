@@ -1,0 +1,23 @@
+# Local scratch / upstream clones for comparison
+_scratch/
+
+# Runtime logs
+log/
+*.log
+plugin/debug.log
+
+# Dependencies
+plugin/node_modules/
+
+# Build artifacts (Windows StreamDock bundle)
+plugin/build/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Local env
+.env
+.env.*

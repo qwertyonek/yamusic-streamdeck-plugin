@@ -1,0 +1,17 @@
+{
+  "name": "ru.yandex.music",
+  "version": "2.1.0",
+  "author": "qwertyonek",
+  "main": "index.js",
+  "description": "Yandex Music controller for OpenDeck / Stream Deck",
+  "scripts": {
+    "test:connection": "node test-connection.js"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "chrome-remote-interface": "^0.33.0",
+    "fs-extra": "^11.3.0",
+    "log4js": "^6.9.1",
+    "ws": "^8.14.2"
+  }
+}
